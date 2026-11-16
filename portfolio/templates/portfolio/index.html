@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>My art stuff</h1>
+    {% if latest_project_list %}
+        <ul>
+        {% for project in latest_project_list %}
+            <li><a href="{% url 'portfolio:detail' project.id %}">{{ project.title }}</a></li>
+            <br>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>I am currently lost.</p>
+    {% endif %}
+<p><a href="{% url 'polls:index' %}">Survey</a></p>
+
+<img src="/static/logo.png" alt="Site logo" class="site-logo">
+<script>
+  const logo = document.querySelector('.site-logo');
+  function moveLogo() {
+    const x = Math.floor(Math.random() * (window.innerWidth - logo.offsetWidth));
+    const y = Math.floor(Math.random() * (window.innerHeight - logo.offsetHeight));
+    logo.style.right = x + 'px';
+    logo.style.bottom = y + 'px';
+  }
+
+  logo.addEventListener('click', moveLogo);
+  window.addEventListener('load', moveLogo);
+</script>
+
+</body>
+
+</html>

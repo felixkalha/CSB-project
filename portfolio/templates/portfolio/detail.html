@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ project.title }}</title>
+<link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+    <p><a href="{% url 'portfolio:index' %}">&larr; Back</a></p>
+
+    <h1>{{ project.title }}</h1>
+        
+    {% if project.is_private and not unlocked %}
+            <p>This project is private.</p>
+
+            <!-- The following under is not really to fix a flaw but more so to slow down many attempts at login without using extra packages. Still quite vulnerable though.-->
+            {% if error_message %}
+            <script>
+                alert("{{ error_message|escapejs }}");
+                window.location.href = "{% url 'portfolio:index' %}"
+            </script>
+            {% endif %}        
+
+            <form method="post">
+            {% csrf_token %}
+            <input type="password" name="draft_password" placeholder="Enter password.">
+            <button type="submit">Unlock</button>
+        </form>
+    {% else %}
+        <div class="project-main">
+            {% if project.image %}
+                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-media">
+            {% endif %}
+
+            {% if project.video_url %}
+                <iframe class="project-media" width="540" height="315" src="{{ project.video_url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            {% endif %}
+
+            <div class="project-text">
+                <br>
+                <p>{{ project.description|safe}}</p>
+            </div>
+        </div>
+
+        <br>
+        <h2>Comments</h2>
+        {% for comment in comments %}
+            <p>
+                <strong>&ensp;{{ comment.author_name }}</strong>: {{ comment.text |safe }} <!--remove |safe as fix for 3. Injection flaws-->           
+                <form action="{% url 'portfolio:delete_comment' comment.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">X</button> 
+                </form>
+            </p>
+        {% empty %} 
+            <p><i> No comments yet.</i></p>
+        {% endfor %}
+
+        <h3>Leave a comment</h3>
+        <form action="{% url 'portfolio:add_comment' project.id %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    {% endif %}
+</body>
+</html>
